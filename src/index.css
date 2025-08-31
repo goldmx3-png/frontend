@@ -47,20 +47,23 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    /* Gradients for percentage cards */
+    --gradient-success: linear-gradient(135deg, hsl(151 55% 41.5%), hsl(151 65% 45%));
+    --gradient-emerald: linear-gradient(135deg, hsl(158 64% 52%), hsl(160 84% 39%));
+    --gradient-primary: linear-gradient(135deg, hsl(151 55% 41.5%), hsl(151 65% 35%));
+    
+    /* Shadows for depth */
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    --shadow-percentage: 0 4px 14px 0 hsl(151 55% 41.5% / 0.25);
+
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -110,5 +113,40 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Production-grade spacing utilities */
+  .card-spacing {
+    @apply p-6 space-y-4;
+  }
+  
+  .card-compact {
+    @apply p-4 space-y-3;
+  }
+  
+  /* Consistent button heights */
+  .btn-height {
+    @apply h-10;
+  }
+  
+  /* Typography scale */
+  .text-body {
+    @apply text-sm leading-relaxed;
+  }
+  
+  .text-caption {
+    @apply text-xs text-muted-foreground;
+  }
+  
+  /* Consistent hover states */
+  .hover-lift {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+  }
+  
+  /* Focus states for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
 }

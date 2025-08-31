@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PercentageCard } from "@/components/ui/percentage-card";
 import { MapPin, Clock, DollarSign, Users, Building2, Heart, MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -46,7 +47,7 @@ export function JobCard({ job, onLike, onApply, onGenerateResume, isLiked = fals
   };
 
   return (
-    <Card className="group hover:shadow-md transition-all duration-200 border border-border">
+    <Card className="group hover-lift border border-border bg-card/50 backdrop-blur-sm">
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
@@ -101,14 +102,11 @@ export function JobCard({ job, onLike, onApply, onGenerateResume, isLiked = fals
           </div>
 
           <div className="flex items-center gap-3 ml-6">
-            <div className="text-center">
-              <div className={`w-16 h-16 rounded-full border-4 flex items-center justify-center ${getMatchColor(job.matchLevel)}`}>
-                <span className="text-lg font-bold">{job.matchPercentage}%</span>
-              </div>
-              <p className="text-xs font-medium mt-1 text-center max-w-[80px]">
-                {job.matchLevel}
-              </p>
-            </div>
+            <PercentageCard 
+              percentage={job.matchPercentage}
+              size="md"
+              variant="default"
+            />
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { PercentageCard } from "@/components/ui/percentage-card";
 import ResumeGenerator from "@/components/ResumeGenerator";
 import { 
   MapPin, 
@@ -226,30 +227,31 @@ export default function JobDetail() {
                 </div>
 
                 <div className="text-center">
-                  <div className={`w-20 h-20 rounded-full border-4 flex items-center justify-center ${getMatchColor(job.matchLevel)}`}>
-                    <span className="text-xl font-bold">{job.matchPercentage}%</span>
-                  </div>
-                  <p className="text-sm font-medium mt-2">{job.matchLevel}</p>
+                  <PercentageCard 
+                    percentage={job.matchPercentage}
+                    size="lg"
+                    variant="default"
+                  />
                   
                   <div className="flex gap-4 mt-4 text-center">
-                    <div>
-                      <div className="w-12 h-12 rounded-full bg-success/10 border-2 border-success flex items-center justify-center">
-                        <span className="text-sm font-bold text-success">{job.matchBreakdown.expLevel}%</span>
-                      </div>
-                      <p className="text-xs mt-1">Exp. Level</p>
-                    </div>
-                    <div>
-                      <div className="w-12 h-12 rounded-full bg-success/10 border-2 border-success flex items-center justify-center">
-                        <span className="text-sm font-bold text-success">{job.matchBreakdown.skill}%</span>
-                      </div>
-                      <p className="text-xs mt-1">Skill</p>
-                    </div>
-                    <div>
-                      <div className="w-12 h-12 rounded-full bg-warning/10 border-2 border-warning flex items-center justify-center">
-                        <span className="text-sm font-bold text-warning">{job.matchBreakdown.industryExp}%</span>
-                      </div>
-                      <p className="text-xs mt-1">Industry Exp.</p>
-                    </div>
+                    <PercentageCard 
+                      percentage={job.matchBreakdown.expLevel}
+                      label="Exp. Level"
+                      size="sm"
+                      variant="success"
+                    />
+                    <PercentageCard 
+                      percentage={job.matchBreakdown.skill}
+                      label="Skill"
+                      size="sm"
+                      variant="success"
+                    />
+                    <PercentageCard 
+                      percentage={job.matchBreakdown.industryExp}
+                      label="Industry Exp."
+                      size="sm"
+                      variant="warning"
+                    />
                   </div>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { PercentageCard } from "@/components/ui/percentage-card";
 import { Search, MapPin, Clock, DollarSign, Users, Building2, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -101,7 +102,7 @@ export function AppliedJobs() {
   );
 
   const AppliedJobCard = ({ job }: { job: AppliedJob }) => (
-    <Card className="group hover:shadow-md transition-all duration-200 border border-border mb-4">
+    <Card className="group hover-lift border border-border bg-card/50 backdrop-blur-sm mb-4">
       <CardContent className="p-6">
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -170,16 +171,17 @@ export function AppliedJobs() {
           </div>
 
           <div className="ml-6">
-            <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 w-24 h-24 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
-              <span className="text-2xl font-bold">{job.matchPercentage}%</span>
-              <span className="text-xs font-medium mt-1">{job.matchLevel}</span>
-              {job.isHtbSponsored && (
-                <div className="flex items-center mt-2">
-                  <div className="w-2 h-2 bg-white rounded-full mr-1"></div>
-                  <span className="text-xs">H1B Sponsored</span>
-                </div>
-              )}
-            </div>
+            <PercentageCard 
+              percentage={job.matchPercentage}
+              size="xl"
+              variant="gradient"
+            />
+            {job.isHtbSponsored && (
+              <div className="flex items-center justify-center mt-2">
+                <div className="w-2 h-2 bg-white rounded-full mr-1"></div>
+                <span className="text-xs text-white">H1B Sponsored</span>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
