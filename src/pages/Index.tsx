@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/JobCard";
 import { JobFilters } from "@/components/JobFilters";
 import { AIAssistant } from "@/components/AIAssistant";
+import { JobListSkeleton } from "@/components/skeletons/JobListSkeleton";
 import { useToast } from "@/hooks/use-toast";
 
 const mockJobs = [
@@ -104,7 +105,17 @@ const Index = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [likedJobs, setLikedJobs] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Simulate loading data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 second loading simulation
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleLike = (jobId: string) => {
     setLikedJobs(prev => 
@@ -177,69 +188,87 @@ const Index = () => {
               </TabsList>
 
               <TabsContent value="recommended" className="mt-0">
-                <JobFilters
-                  activeFilters={activeFilters}
-                  onFilterChange={setActiveFilters}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                />
-                
-                <div className="p-4 space-y-4">
-                  {filteredJobs.map((job) => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      onLike={handleLike}
-                      onApply={handleApply}
-                      isLiked={likedJobs.includes(job.id)}
+                {isLoading ? (
+                  <JobListSkeleton showFilters={true} cardCount={5} />
+                ) : (
+                  <>
+                    <JobFilters
+                      activeFilters={activeFilters}
+                      onFilterChange={setActiveFilters}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
                     />
-                  ))}
-                  
-                  {filteredJobs.length === 0 && (
-                    <div className="text-center py-12">
-                      <div className="text-6xl mb-4">📄</div>
-                      <h3 className="text-lg font-semibold mb-2">No jobs match your filters</h3>
-                      <p className="text-muted-foreground">Try adjusting your search criteria</p>
+                    
+                    <div className="p-4 space-y-4">
+                      {filteredJobs.map((job) => (
+                        <JobCard
+                          key={job.id}
+                          job={job}
+                          onLike={handleLike}
+                          onApply={handleApply}
+                          isLiked={likedJobs.includes(job.id)}
+                        />
+                      ))}
+                      
+                      {filteredJobs.length === 0 && (
+                        <div className="text-center py-12">
+                          <div className="text-6xl mb-4">📄</div>
+                          <h3 className="text-lg font-semibold mb-2">No jobs match your filters</h3>
+                          <p className="text-muted-foreground">Try adjusting your search criteria</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </>
+                )}
               </TabsContent>
 
               <TabsContent value="liked">
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">💚</div>
-                  <h3 className="text-lg font-semibold mb-2">No liked jobs yet?</h3>
-                  <p className="text-muted-foreground">Explore recommended ones to find some you'd like!</p>
-                  <Button className="mt-4">View Recommended Jobs</Button>
-                </div>
+                {isLoading ? (
+                  <JobListSkeleton showFilters={false} cardCount={3} />
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">💚</div>
+                    <h3 className="text-lg font-semibold mb-2">No liked jobs yet?</h3>
+                    <p className="text-muted-foreground">Explore recommended ones to find some you'd like!</p>
+                    <Button className="mt-4">View Recommended Jobs</Button>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="applied">
-                <div className="p-4 space-y-4">
-                  {mockJobs.slice(0, 2).map((job) => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      onLike={handleLike}
-                      onApply={handleApply}
-                      isLiked={likedJobs.includes(job.id)}
-                    />
-                  ))}
-                </div>
+                {isLoading ? (
+                  <JobListSkeleton showFilters={false} cardCount={2} />
+                ) : (
+                  <div className="p-4 space-y-4">
+                    {mockJobs.slice(0, 2).map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        onLike={handleLike}
+                        onApply={handleApply}
+                        isLiked={likedJobs.includes(job.id)}
+                      />
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="external">
-                <div className="p-4 space-y-4">
-                  {mockJobs.slice(0, 1).map((job) => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      onLike={handleLike}
-                      onApply={handleApply}
-                      isLiked={likedJobs.includes(job.id)}
-                    />
-                  ))}
-                </div>
+                {isLoading ? (
+                  <JobListSkeleton showFilters={false} cardCount={1} />
+                ) : (
+                  <div className="p-4 space-y-4">
+                    {mockJobs.slice(0, 1).map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        onLike={handleLike}
+                        onApply={handleApply}
+                        isLiked={likedJobs.includes(job.id)}
+                      />
+                    ))}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>

@@ -1,11 +1,27 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle2, Info, Plus, Star, MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ResumeSkeleton } from "@/components/skeletons/ResumeSkeleton";
 
 export default function Resume() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <ResumeSkeleton />;
+  }
   const resumes = [
     {
       id: "koduri-mohan-resume",

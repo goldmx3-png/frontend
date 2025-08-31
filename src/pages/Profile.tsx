@@ -1,10 +1,26 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Edit2, CheckCircle2, Info, FileText } from "lucide-react";
+import { ProfileSkeleton } from "@/components/skeletons/ProfileSkeleton";
 
 export default function Profile() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
   const workExperience = [
     {
       period: "2024-07 ↔ Present",
