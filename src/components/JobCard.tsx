@@ -27,10 +27,11 @@ interface JobCardProps {
   job: Job;
   onLike?: (jobId: string) => void;
   onApply?: (jobId: string) => void;
+  onGenerateResume?: (jobId: string) => void;
   isLiked?: boolean;
 }
 
-export function JobCard({ job, onLike, onApply, isLiked = false }: JobCardProps) {
+export function JobCard({ job, onLike, onApply, onGenerateResume, isLiked = false }: JobCardProps) {
   const getMatchColor = (level: string) => {
     switch (level) {
       case "STRONG MATCH":
@@ -129,6 +130,14 @@ export function JobCard({ job, onLike, onApply, isLiked = false }: JobCardProps)
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
               ASK ORION
+            </Button>
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => onGenerateResume?.(job.id)}
+              className="text-emerald-600 border-emerald-600 hover:bg-emerald-50"
+            >
+              Generate Custom Resume
             </Button>
             <Button 
               onClick={() => onApply?.(job.id)}

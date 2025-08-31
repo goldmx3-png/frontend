@@ -7,6 +7,7 @@ import { JobFilters } from "@/components/JobFilters";
 import { AIAssistant } from "@/components/AIAssistant";
 import { AppliedJobs } from "@/components/AppliedJobs";
 import { JobListSkeleton } from "@/components/skeletons/JobListSkeleton";
+import ResumeGenerator from "@/components/ResumeGenerator";
 import { useToast } from "@/hooks/use-toast";
 
 const mockJobs = [
@@ -107,6 +108,8 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [likedJobs, setLikedJobs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showResumeGenerator, setShowResumeGenerator] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Simulate loading data
@@ -128,9 +131,19 @@ const Index = () => {
 
   const handleApply = (jobId: string) => {
     toast({
-      title: "Application Started",
+      title: "Application Started", 
       description: "Redirecting to application form with auto-fill enabled...",
     });
+  };
+
+  const handleGenerateResume = (jobId: string) => {
+    setSelectedJobId(jobId);
+    setShowResumeGenerator(true);
+  };
+
+  const handleCloseResumeGenerator = () => {
+    setShowResumeGenerator(false);
+    setSelectedJobId(null);
   };
 
   const filteredJobs = mockJobs.filter(job => {
@@ -149,6 +162,10 @@ const Index = () => {
     
     return matchesSearch && matchesFilters;
   });
+
+  if (showResumeGenerator && selectedJobId) {
+    return <ResumeGenerator jobId={selectedJobId} onClose={handleCloseResumeGenerator} />;
+  }
 
   return (
     <div className="flex">
@@ -207,6 +224,7 @@ const Index = () => {
                           job={job}
                           onLike={handleLike}
                           onApply={handleApply}
+                          onGenerateResume={handleGenerateResume}
                           isLiked={likedJobs.includes(job.id)}
                         />
                       ))}
@@ -255,6 +273,7 @@ const Index = () => {
                         job={job}
                         onLike={handleLike}
                         onApply={handleApply}
+                        onGenerateResume={handleGenerateResume}
                         isLiked={likedJobs.includes(job.id)}
                       />
                     ))}
