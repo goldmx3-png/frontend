@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import ResumeGenerator from "@/components/ResumeGenerator";
 import { 
   MapPin, 
   Clock, 
@@ -119,6 +120,7 @@ const jobData = {
 export default function JobDetail() {
   const { jobId } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showResumeGenerator, setShowResumeGenerator] = useState(false);
   const job = jobData[jobId as keyof typeof jobData];
 
   if (!job) {
@@ -262,7 +264,10 @@ export default function JobDetail() {
                       </div>
                       <span className="font-medium">Maximize your interview chances</span>
                     </div>
-                    <Button className="bg-success hover:bg-success/90">
+                    <Button 
+                      className="bg-success hover:bg-success/90"
+                      onClick={() => setShowResumeGenerator(true)}
+                    >
                       <span className="mr-2">⭐</span>
                       Generate Custom Resume
                     </Button>
@@ -697,6 +702,14 @@ export default function JobDetail() {
           </div>
         </div>
       </div>
+
+      {/* Resume Generator Modal */}
+      {showResumeGenerator && (
+        <ResumeGenerator 
+          jobId={jobId || "1"} 
+          onClose={() => setShowResumeGenerator(false)} 
+        />
+      )}
     </div>
   );
 }
