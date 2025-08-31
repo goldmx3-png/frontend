@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/JobCard";
 import { JobFilters } from "@/components/JobFilters";
 import { AIAssistant } from "@/components/AIAssistant";
+import { AppliedJobs } from "@/components/AppliedJobs";
 import { JobListSkeleton } from "@/components/skeletons/JobListSkeleton";
 import { useToast } from "@/hooks/use-toast";
 
@@ -239,17 +240,7 @@ const Index = () => {
                 {isLoading ? (
                   <JobListSkeleton showFilters={false} cardCount={2} />
                 ) : (
-                  <div className="p-4 space-y-4">
-                    {mockJobs.slice(0, 2).map((job) => (
-                      <JobCard
-                        key={job.id}
-                        job={job}
-                        onLike={handleLike}
-                        onApply={handleApply}
-                        isLiked={likedJobs.includes(job.id)}
-                      />
-                    ))}
-                  </div>
+                  <AppliedJobs />
                 )}
               </TabsContent>
 
