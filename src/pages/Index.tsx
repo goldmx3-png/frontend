@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/JobCard";
 import { JobFilters } from "@/components/JobFilters";
-import { Sidebar } from "@/components/Sidebar";
 import { AIAssistant } from "@/components/AIAssistant";
 import { useToast } from "@/hooks/use-toast";
 
@@ -140,13 +139,10 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar />
-      
-      <div className="flex-1 flex">
-        <div className="flex-1">
-          {/* Header */}
-          <div className="border-b border-border bg-card p-4">
+    <div className="flex">
+      <div className="flex-1">
+        {/* Header */}
+        <div className="border-b border-border bg-card p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold">JOBS</h1>
@@ -249,8 +245,7 @@ const Index = () => {
           </div>
         </div>
 
-        <AIAssistant />
-      </div>
+      <AIAssistant />
     </div>
   );
 };
