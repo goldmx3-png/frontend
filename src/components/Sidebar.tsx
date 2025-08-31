@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Briefcase, FileText, User, Settings, Gift, Bell, HelpCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { SettingsModal } from "@/components/SettingsModal";
 
 export function Sidebar() {
   const location = useLocation();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   const navigationItems = [
     { icon: Briefcase, label: "Jobs", path: "/", count: null },
@@ -67,10 +70,20 @@ export function Sidebar() {
         <Button variant="ghost" size="sm" className="w-12 h-12 p-0 text-muted-foreground">
           <HelpCircle className="w-5 h-5" />
         </Button>
-        <Button variant="ghost" size="sm" className="w-12 h-12 p-0 text-muted-foreground">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-12 h-12 p-0 text-muted-foreground"
+          onClick={() => setIsSettingsOpen(true)}
+        >
           <Settings className="w-5 h-5" />
         </Button>
       </div>
+      
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   );
 }

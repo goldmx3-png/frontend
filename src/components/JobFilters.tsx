@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, X } from "lucide-react";
+import { EditFiltersModal } from "@/components/EditFiltersModal";
 
 interface JobFiltersProps {
   activeFilters: string[];
@@ -28,6 +30,7 @@ export function JobFilters({
   searchQuery, 
   onSearchChange 
 }: JobFiltersProps) {
+  const [isEditFiltersOpen, setIsEditFiltersOpen] = useState(false);
   const toggleFilter = (filter: string) => {
     if (activeFilters.includes(filter)) {
       onFilterChange(activeFilters.filter(f => f !== filter));
@@ -69,7 +72,12 @@ export function JobFilters({
             {filter}
           </Badge>
         ))}
-        <Button variant="outline" size="sm" className="h-6 text-xs">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-6 text-xs"
+          onClick={() => setIsEditFiltersOpen(true)}
+        >
           <Filter className="w-3 h-3 mr-1" />
           Edit Filters
         </Button>
@@ -105,6 +113,13 @@ export function JobFilters({
           </Button>
         </div>
       )}
+      
+      <EditFiltersModal
+        isOpen={isEditFiltersOpen}
+        onClose={() => setIsEditFiltersOpen(false)}
+        activeFilters={activeFilters}
+        onFilterChange={onFilterChange}
+      />
     </div>
   );
 }
