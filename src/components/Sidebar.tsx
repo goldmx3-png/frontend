@@ -2,13 +2,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Briefcase, FileText, User, Settings, Gift, Bell, HelpCircle } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 export function Sidebar() {
+  const location = useLocation();
+  
   const navigationItems = [
-    { icon: Briefcase, label: "Jobs", count: null, active: true },
-    { icon: FileText, label: "Resume", count: null, active: false },
-    { icon: User, label: "Profile", count: null, active: false },
-    { icon: Settings, label: "Agent", count: "NEW", active: false }
+    { icon: Briefcase, label: "Jobs", path: "/", count: null },
+    { icon: FileText, label: "Resume", path: "/resume", count: null },
+    { icon: User, label: "Profile", path: "/profile", count: null },
+    { icon: Settings, label: "Agent", path: "/agent", count: "NEW" }
   ];
 
   return (
@@ -20,30 +23,36 @@ export function Sidebar() {
 
       {/* Navigation */}
       <div className="flex flex-col space-y-2">
-        {navigationItems.map((item) => (
-          <div key={item.label} className="relative">
-            <Button
-              variant={item.active ? "default" : "ghost"}
-              size="sm"
-              className={`w-12 h-12 p-0 ${
-                item.active 
-                  ? "bg-primary text-primary-foreground" 
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-            </Button>
-            {item.count && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 text-xs px-1 min-w-[16px] h-4"
+        {navigationItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <div key={item.label} className="relative">
+              <Button
+                variant={isActive ? "default" : "ghost"}
+                size="sm"
+                className={`w-12 h-12 p-0 ${
+                  isActive 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                asChild
               >
-                {item.count}
-              </Badge>
-            )}
-            <span className="sr-only">{item.label}</span>
-          </div>
-        ))}
+                <Link to={item.path}>
+                  <item.icon className="w-5 h-5" />
+                </Link>
+              </Button>
+              {item.count && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 text-xs px-1 min-w-[16px] h-4"
+                >
+                  {item.count}
+                </Badge>
+              )}
+              <span className="sr-only">{item.label}</span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Bottom Icons */}
