@@ -9,6 +9,7 @@ import JobDetail from "./pages/JobDetail";
 import Profile from "./pages/Profile";
 import Resume from "./pages/Resume";
 import ResumeDetail from "./pages/ResumeDetail";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <div className="flex-1">
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/job/:jobId" element={<JobDetail />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/resume" element={<Resume />} />
