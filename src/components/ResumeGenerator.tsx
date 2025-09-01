@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -6,8 +6,38 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, ArrowRight, CheckCircle, AlertTriangle, X, Info, Edit, Trash2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, ArrowRight, CheckCircle, AlertTriangle, X, Info, Edit, Trash2, Download, Plus } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { toast } from "sonner";
+
+interface ResumeData {
+  personalInfo: {
+    name: string;
+    email: string;
+    phone: string;
+    location: string;
+    title: string;
+  };
+  summary: string;
+  skills: string[];
+  experience: {
+    id: string;
+    title: string;
+    company: string;
+    duration: string;
+    description: string[];
+  }[];
+  education: {
+    degree: string;
+    school: string;
+    year: string;
+  }[];
+}
 
 interface ResumeGeneratorProps {
   jobId: string;
@@ -18,7 +48,7 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [resumeScore, setResumeScore] = useState(2.5);
-  const [newScore] = useState(3.0);
+  const [newScore] = useState(8.2);
   const [selectedSections, setSelectedSections] = useState({
     summary: false,
     skills: true,
@@ -36,7 +66,58 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
     "Git"
   ]);
   const [resumeTemplate, setResumeTemplate] = useState("standard");
-  const [fontSize, setFontSize] = useState("25");
+  const [fontSize, setFontSize] = useState("12");
+  const [isEditing, setIsEditing] = useState(false);
+  const resumeRef = useRef<HTMLDivElement>(null);
+
+  // Real-time resume data
+  const [resumeData, setResumeData] = useState<ResumeData>({
+    personalInfo: {
+      name: "Koduri Mohan",
+      email: "koduri.mohan@email.com",
+      phone: "+1 (555) 123-4567",
+      location: "Palo Alto, CA",
+      title: "Full Stack Software Engineer"
+    },
+    summary: "Experienced Full Stack Software Engineer with 3+ years of expertise in Java development, Spring Boot, and modern web technologies. Proven track record in building scalable applications and implementing agile methodologies.",
+    skills: [
+      "Java", "Spring Boot", "React", "Node.js", "PostgreSQL", "MongoDB", 
+      "RESTful APIs", "Microservices", "Docker", "Kubernetes", "AWS", 
+      "Git", "Jenkins", "JUnit", "Test-Driven Development"
+    ],
+    experience: [
+      {
+        id: "1",
+        title: "Software Engineer II",
+        company: "Tech Solutions Inc.",
+        duration: "Jan 2022 - Present",
+        description: [
+          "Developed and maintained 5+ microservices using Java Spring Boot, serving 100K+ daily active users",
+          "Implemented RESTful APIs with 99.9% uptime and optimized database queries reducing response time by 40%",
+          "Collaborated with cross-functional teams using Agile methodologies and participated in code reviews",
+          "Designed and implemented automated testing strategies using JUnit and Mockito, achieving 95% code coverage"
+        ]
+      },
+      {
+        id: "2",
+        title: "Junior Software Developer",
+        company: "StartupCorp",
+        duration: "Jun 2021 - Dec 2021",
+        description: [
+          "Built responsive web applications using React and Node.js",
+          "Integrated third-party APIs and payment gateways",
+          "Participated in daily standups and sprint planning sessions"
+        ]
+      }
+    ],
+    education: [
+      {
+        degree: "Bachelor of Science in Computer Science",
+        school: "University of California, Berkeley",
+        year: "2021"
+      }
+    ]
+  });
 
   const jobData = {
     title: "Full Stack Software Engineer III",
@@ -47,17 +128,42 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
       "Test-Driven Development", "JUnit", "Git", "Cucumber", "Kafka",
       "Cloud Technologies", "Modern Front-end Technologies"
     ],
-    experienceRequired: "2+ years exp",
+    experienceRequired: "3+ years exp",
     industries: ["Asset Management", "Banking", "Financial Services"]
   };
 
   const handleStepChange = (step: number) => {
     if (step === 3 && currentStep === 2) {
       setIsGenerating(true);
+      // Simulate AI enhancement
       setTimeout(() => {
+        // Update resume with job-specific improvements
+        const enhancedResume = { ...resumeData };
+        
+        // Enhance summary with job-specific keywords
+        if (selectedSections.summary) {
+          enhancedResume.summary = `Experienced Full Stack Software Engineer with 3+ years of expertise in Java development, Spring Boot, and modern web technologies. Proven track record in building scalable applications using SDLC methodologies and Agile practices. Specialized in financial services with experience in asset management solutions.`;
+        }
+
+        // Add selected skills
+        enhancedResume.skills = [...new Set([...enhancedResume.skills, ...selectedSkills])];
+
+        // Enhance work experience descriptions
+        if (selectedSections.workExperience) {
+          enhancedResume.experience[0].description = [
+            "Developed and maintained 5+ microservices using Java Spring Boot following SDLC best practices, serving 100K+ daily active users in financial services",
+            "Implemented RESTful APIs with 99.9% uptime and optimized relational database queries reducing response time by 40%",
+            "Collaborated with cross-functional teams using Agile methodologies and participated in code reviews using Git",
+            "Designed and implemented automated testing strategies using JUnit and Test-Driven Development, achieving 95% code coverage",
+            "Applied Java Design Patterns and worked with modern front-end technologies to deliver scalable solutions"
+          ];
+        }
+
+        setResumeData(enhancedResume);
         setIsGenerating(false);
         setResumeScore(newScore);
         setCurrentStep(step);
+        toast.success("Resume enhanced successfully!");
       }, 3000);
     } else {
       setCurrentStep(step);
@@ -73,9 +179,92 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 7) return "text-green-500";
+    if (score >= 7) return "text-emerald-500";
     if (score >= 4) return "text-yellow-500";
     return "text-red-500";
+  };
+
+  const updateResumeData = (field: string, value: any) => {
+    setResumeData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const updatePersonalInfo = (field: string, value: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      personalInfo: {
+        ...prev.personalInfo,
+        [field]: value
+      }
+    }));
+  };
+
+  const addExperience = () => {
+    const newExp = {
+      id: Date.now().toString(),
+      title: "New Position",
+      company: "Company Name",
+      duration: "Start - End",
+      description: ["Description of your role and achievements"]
+    };
+    setResumeData(prev => ({
+      ...prev,
+      experience: [...prev.experience, newExp]
+    }));
+  };
+
+  const updateExperience = (id: string, field: string, value: any) => {
+    setResumeData(prev => ({
+      ...prev,
+      experience: prev.experience.map(exp => 
+        exp.id === id ? { ...exp, [field]: value } : exp
+      )
+    }));
+  };
+
+  const deleteExperience = (id: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      experience: prev.experience.filter(exp => exp.id !== id)
+    }));
+  };
+
+  const downloadPDF = async () => {
+    if (!resumeRef.current) return;
+
+    try {
+      const canvas = await html2canvas(resumeRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF();
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`${resumeData.personalInfo.name.replace(/\s+/g, '_')}_Resume.pdf`);
+      toast.success("Resume downloaded successfully!");
+    } catch (error) {
+      toast.error("Failed to download resume. Please try again.");
+      console.error("PDF generation error:", error);
+    }
   };
 
   const renderStepIndicator = () => (
@@ -108,6 +297,78 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
     </div>
   );
 
+  const renderResumePreview = () => (
+    <div 
+      ref={resumeRef}
+      className={`bg-white p-8 rounded-lg shadow-lg text-black max-w-4xl mx-auto`}
+      style={{ fontSize: `${fontSize}px` }}
+    >
+      {/* Header */}
+      <div className="text-center mb-6 border-b-2 border-gray-200 pb-4">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">{resumeData.personalInfo.name}</h1>
+        <h2 className="text-xl text-gray-600 mb-3">{resumeData.personalInfo.title}</h2>
+        <div className="flex justify-center space-x-4 text-sm text-gray-600">
+          <span>{resumeData.personalInfo.email}</span>
+          <span>•</span>
+          <span>{resumeData.personalInfo.phone}</span>
+          <span>•</span>
+          <span>{resumeData.personalInfo.location}</span>
+        </div>
+      </div>
+
+      {/* Summary */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b border-gray-300">Professional Summary</h3>
+        <p className="text-gray-700 leading-relaxed">{resumeData.summary}</p>
+      </div>
+
+      {/* Skills */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b border-gray-300">Technical Skills</h3>
+        <div className="flex flex-wrap gap-2">
+          {resumeData.skills.map((skill, index) => (
+            <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">
+              {skill}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Experience */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3 border-b border-gray-300">Professional Experience</h3>
+        {resumeData.experience.map((exp) => (
+          <div key={exp.id} className="mb-4">
+            <div className="flex justify-between items-start mb-1">
+              <h4 className="font-semibold text-gray-800">{exp.title}</h4>
+              <span className="text-sm text-gray-600">{exp.duration}</span>
+            </div>
+            <p className="text-gray-600 mb-2 font-medium">{exp.company}</p>
+            <ul className="list-disc list-inside text-gray-700 space-y-1">
+              {exp.description.map((desc, index) => (
+                <li key={index}>{desc}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Education */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b border-gray-300">Education</h3>
+        {resumeData.education.map((edu, index) => (
+          <div key={index} className="mb-2">
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-800">{edu.degree}</span>
+              <span className="text-gray-600">{edu.year}</span>
+            </div>
+            <p className="text-gray-600">{edu.school}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   if (isGenerating) {
     return (
       <div className="min-h-screen bg-background p-6">
@@ -133,9 +394,9 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
                   <div className="w-16 h-16 mx-auto mb-4 bg-emerald-100 rounded-full flex items-center justify-center">
                     <Progress value={75} className="w-8 h-8" />
                   </div>
-                  <h2 className="text-xl font-semibold mb-2">Finalizing your new resume...</h2>
+                  <h2 className="text-xl font-semibold mb-2">Enhancing your resume with AI...</h2>
                   <p className="text-muted-foreground mb-4">
-                    It usually takes about 10-20 seconds to complete.
+                    Optimizing content for job requirements and ATS systems.
                   </p>
                   <Progress value={75} className="w-full" />
                 </div>
@@ -265,7 +526,7 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium">Job Keywords (3/14)</span>
+                            <span className="text-sm font-medium">Job Keywords (7/14)</span>
                             <Info className="w-4 h-4 text-muted-foreground" />
                           </div>
                           <AlertTriangle className="w-4 h-4 text-yellow-500" />
@@ -294,7 +555,7 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
                       <div className="flex items-center justify-between">
                         <div>
                           <CardTitle className="text-lg">Your resume</CardTitle>
-                          <p className="text-sm text-muted-foreground">KODURI MOHAN-MODIFIED</p>
+                          <p className="text-sm text-muted-foreground">{resumeData.personalInfo.name.toUpperCase()}</p>
                         </div>
                         <Select>
                           <SelectTrigger className="w-32">
@@ -314,8 +575,8 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
                         <div className="text-sm text-muted-foreground">Poor</div>
                       </div>
                       <div className="space-y-2 text-sm">
-                        <div>Java Developer / Research Associate</div>
-                        <div className="text-muted-foreground">1+ years exp</div>
+                        <div>{resumeData.personalInfo.title}</div>
+                        <div className="text-muted-foreground">3+ years exp</div>
                       </div>
                     </CardContent>
                   </Card>
@@ -393,375 +654,277 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
                             onClick={() => toggleSkill(skill)}
                           >
                             {skill}
-                            {selectedSkills.includes(skill) ? " +" : " +"}
+                            {selectedSkills.includes(skill) ? " ✓" : " +"}
                           </Badge>
                         ))}
                       </div>
-                      <Button variant="ghost" className="text-sm text-muted-foreground">
-                        Add Skills
-                        <Info className="w-4 h-4 ml-1" />
+                    </div>
+
+                    <div className="mt-6 flex justify-between">
+                      <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back
+                      </Button>
+                      <Button 
+                        onClick={() => handleStepChange(3)}
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                      >
+                        Generate Enhanced Resume
+                        <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
-
-                <div className="col-span-2 flex justify-between">
-                  <Button variant="outline" onClick={() => handleStepChange(1)}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button 
-                    onClick={() => handleStepChange(3)}
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                  >
-                    Generate My New Resume
-                  </Button>
-                </div>
               </div>
             )}
 
             {currentStep === 3 && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <Button variant="outline" size="sm" className="text-emerald-600 border-emerald-600">
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Analysis
-                    </Button>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-right">
-                      <div className="text-sm font-medium">Great! Your score jumped</div>
-                      <div className="text-xs text-muted-foreground">
-                        from <span className="font-medium">2.5</span> to <span className="font-medium text-emerald-600">3</span>, closer to landing that interview!
+                <div className="grid grid-cols-2 gap-8 mb-6">
+                  <Card>
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-lg">Original Resume</CardTitle>
+                          <p className="text-sm text-muted-foreground">KODURI MOHAN</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="relative w-16 h-16">
-                      <div className={`text-2xl font-bold ${getScoreColor(newScore)} flex items-center justify-center w-full h-full`}>
-                        {newScore}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center mb-4">
+                        <div className={`text-4xl font-bold ${getScoreColor(2.5)}`}>
+                          2.5
+                        </div>
+                        <div className="text-sm text-muted-foreground">Poor</div>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-lg">Enhanced Resume</CardTitle>
+                          <p className="text-sm text-muted-foreground">AI-OPTIMIZED</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center mb-4">
+                        <div className={`text-4xl font-bold ${getScoreColor(newScore)}`}>
+                          {newScore}
+                        </div>
+                        <div className="text-sm text-emerald-600 font-medium">Excellent</div>
+                      </div>
+                      <div className="text-sm text-emerald-600">
+                        +{((newScore - 2.5) * 100 / 2.5).toFixed(0)}% improvement
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                <Tabs defaultValue="report" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="report">Report</TabsTrigger>
-                    <TabsTrigger value="editor">Editor</TabsTrigger>
-                    <TabsTrigger value="style">Style</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="report" className="mt-6">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <Card>
-                          <CardContent className="p-6">
-                            <h3 className="font-semibold text-lg mb-4">KODURI MOHAN</h3>
-                            <div className="space-y-3 text-sm">
-                              <div>6303410719 | kodurimohan5@gmail.com | linkedin.com/in/kodurimohan | github.com/kodurimohan</div>
-                              
-                              <div>
-                                <div className="font-semibold">Education</div>
-                                <div>IIT Madras</div>
-                                <div className="text-muted-foreground">Bachelor of Technology, Materials Science and Engineering | Jul 2019 - May 2023</div>
-                                <div className="text-muted-foreground">• Coursework: AI for Everyone, Data Structures, Algorithms Analysis, System Design, DevOps and CI/CD, Machine Learning, Database Systems</div>
-                              </div>
-
-                              <div>
-                                <div className="font-semibold">Experience</div>
-                                <div>Mindgate Solutions | Java Developer | Jul 2024 - Present | Chennai, India</div>
-                                <div className="text-sm space-y-1 mt-2">
-                                  <div>• Developed comprehensive Java payment services using Spring Boot and integrating CI/CD practices, ensuring system reliability increased by 98% in alignment with secure, high-quality production code requirements.</div>
-                                  <div>• Optimized system performance through comprehensive testing protocols and infrastructure automation, delivering enhanced performance, reducing latency by 35% while supporting agile development and continuous improvement initiatives.</div>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      <div className="space-y-4">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="flex items-center space-x-2">
-                              <CheckCircle className="w-5 h-5 text-emerald-500" />
-                              <span>See What's Changed</span>
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <Collapsible>
-                              <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-emerald-50 rounded-lg">
-                                <div className="flex items-center space-x-2">
-                                  <CheckCircle className="w-4 h-4 text-emerald-500" />
-                                  <span className="font-medium">Recent Work Experience Enhanced</span>
-                                </div>
-                                <ArrowRight className="w-4 h-4" />
-                              </CollapsibleTrigger>
-                              <CollapsibleContent className="mt-2 p-3 text-sm text-muted-foreground">
-                                Enhanced recent work experience with relevant keywords and improved descriptions.
-                              </CollapsibleContent>
-                            </Collapsible>
-                          </CardContent>
-                        </Card>
-
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>More Adjustments You Can Make</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-3">
-                              <Select>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Align your job title" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="align">Align job title</SelectItem>
-                                </SelectContent>
-                              </Select>
-
-                              <div className="text-center">
-                                <Button variant="ghost" className="text-sm">
-                                  How do you like this resume?
-                                </Button>
-                                <div className="flex justify-center space-x-4 mt-2">
-                                  <Button variant="outline" size="sm">
-                                    👍 Looks Great!
-                                  </Button>
-                                  <Button variant="outline" size="sm">
-                                    👎 Not What I Expected
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
+                <Tabs defaultValue="preview" className="w-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <TabsList className="grid w-fit grid-cols-3">
+                      <TabsTrigger value="preview">Preview</TabsTrigger>
+                      <TabsTrigger value="editor">Editor</TabsTrigger>
+                      <TabsTrigger value="style">Style</TabsTrigger>
+                    </TabsList>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setIsEditing(!isEditing)}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        {isEditing ? "Preview Mode" : "Edit Mode"}
+                      </Button>
+                      <Button onClick={downloadPDF} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                        <Download className="w-4 h-4 mr-2" />
+                        Download PDF
+                      </Button>
                     </div>
+                  </div>
+
+                  <TabsContent value="preview" className="space-y-4">
+                    {renderResumePreview()}
                   </TabsContent>
 
-                  <TabsContent value="editor" className="mt-6">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <Card>
-                          <CardContent className="p-6">
-                            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                              <div className="flex items-start space-x-2">
-                                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
-                                <div className="text-sm">
-                                  <span className="font-medium">Note:</span> Changes made here apply only to <span className="font-medium">this resume</span>. For major updates, like adjusting sections or editing experiences, update your Base Resume to affect future resumes.
-                                </div>
-                              </div>
-                            </div>
+                  <TabsContent value="editor" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Personal Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="name">Full Name</Label>
+                            <Input
+                              id="name"
+                              value={resumeData.personalInfo.name}
+                              onChange={(e) => updatePersonalInfo('name', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="title">Professional Title</Label>
+                            <Input
+                              id="title"
+                              value={resumeData.personalInfo.title}
+                              onChange={(e) => updatePersonalInfo('title', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                              id="email"
+                              value={resumeData.personalInfo.email}
+                              onChange={(e) => updatePersonalInfo('email', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="phone">Phone</Label>
+                            <Input
+                              id="phone"
+                              value={resumeData.personalInfo.phone}
+                              onChange={(e) => updatePersonalInfo('phone', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="location">Location</Label>
+                          <Input
+                            id="location"
+                            value={resumeData.personalInfo.location}
+                            onChange={(e) => updatePersonalInfo('location', e.target.value)}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                            <Button variant="outline" size="sm" className="mb-6">
-                              Edit Base Resume
-                            </Button>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Professional Summary</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Textarea
+                          value={resumeData.summary}
+                          onChange={(e) => updateResumeData('summary', e.target.value)}
+                          className="min-h-[100px]"
+                        />
+                      </CardContent>
+                    </Card>
 
-                            <div className="space-y-4">
-                              {[
-                                { title: "Personal Info", isOpen: false },
-                                { title: "Education", isOpen: false },
-                                { title: "Experience", isOpen: false },
-                                { title: "Projects", isOpen: false },
-                                { title: "Relevant Coursework", isOpen: false },
-                                { title: "Achievements and Extracurricular", isOpen: false }
-                              ].map((section) => (
-                                <Collapsible key={section.title}>
-                                  <CollapsibleTrigger className="flex items-center justify-between w-full p-3 border rounded-lg hover:bg-muted/50">
-                                    <span className="font-medium">{section.title}</span>
-                                    <div className="flex items-center space-x-2">
-                                      <Edit className="w-4 h-4" />
-                                      <Trash2 className="w-4 h-4" />
-                                      <ArrowRight className="w-4 h-4" />
-                                    </div>
-                                  </CollapsibleTrigger>
-                                  <CollapsibleContent className="mt-2">
-                                    <div className="p-3 text-sm text-muted-foreground">
-                                      Section content would be editable here
-                                    </div>
-                                  </CollapsibleContent>
-                                </Collapsible>
-                              ))}
-
-                              <Button variant="ghost" className="w-full">
-                                <span>+ Add</span>
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle>Work Experience</CardTitle>
+                          <Button onClick={addExperience} size="sm">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Experience
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        {resumeData.experience.map((exp) => (
+                          <div key={exp.id} className="border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="font-medium">Experience #{resumeData.experience.indexOf(exp) + 1}</h4>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => deleteExperience(exp.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      <div className="space-y-4">
-                        <Card>
-                          <CardContent className="p-6">
-                            <h3 className="font-semibold text-lg mb-4">KODURI MOHAN</h3>
-                            <div className="space-y-3 text-sm">
-                              <div>6303410719 | kodurimohan5@gmail.com | linkedin.com/in/kodurimohan | github.com/kodurimohan</div>
-                              
+                            <div className="grid grid-cols-2 gap-4 mb-4">
                               <div>
-                                <div className="font-semibold">Education</div>
-                                <div>IIT Madras</div>
-                                <div className="text-muted-foreground">Bachelor of Technology, Materials Science and Engineering | Jul 2019 - May 2023</div>
+                                <Label>Job Title</Label>
+                                <Input
+                                  value={exp.title}
+                                  onChange={(e) => updateExperience(exp.id, 'title', e.target.value)}
+                                />
                               </div>
-
                               <div>
-                                <div className="font-semibold">Experience</div>
-                                <div>Mindgate Solutions | Java Developer | Jul 2024 - Present | Chennai, India</div>
+                                <Label>Company</Label>
+                                <Input
+                                  value={exp.company}
+                                  onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <Label>Duration</Label>
+                                <Input
+                                  value={exp.duration}
+                                  onChange={(e) => updateExperience(exp.id, 'duration', e.target.value)}
+                                />
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
+                            <div>
+                              <Label>Description (one per line)</Label>
+                              <Textarea
+                                value={exp.description.join('\n')}
+                                onChange={(e) => updateExperience(exp.id, 'description', e.target.value.split('\n'))}
+                                className="min-h-[120px]"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
                   </TabsContent>
 
-                  <TabsContent value="style" className="mt-6">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Resume Template</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div 
-                                className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                                  resumeTemplate === "standard" 
-                                    ? "border-emerald-500 bg-emerald-50" 
-                                    : "border-muted hover:border-muted-foreground"
-                                }`}
-                                onClick={() => setResumeTemplate("standard")}
-                              >
-                                <div className="w-full h-32 bg-white border rounded mb-2 p-2">
-                                  <div className="space-y-1">
-                                    <div className="h-2 bg-gray-800 rounded w-1/3"></div>
-                                    <div className="h-1 bg-gray-400 rounded w-1/2"></div>
-                                    <div className="h-1 bg-gray-400 rounded w-2/3"></div>
-                                  </div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="font-medium">Standard</div>
-                                  {resumeTemplate === "standard" && (
-                                    <Badge className="mt-1 bg-emerald-500">
-                                      ★ Recommended
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div 
-                                className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                                  resumeTemplate === "compact" 
-                                    ? "border-emerald-500 bg-emerald-50" 
-                                    : "border-muted hover:border-muted-foreground"
-                                }`}
-                                onClick={() => setResumeTemplate("compact")}
-                              >
-                                <div className="w-full h-32 bg-white border rounded mb-2 p-2">
-                                  <div className="space-y-1">
-                                    <div className="h-1 bg-gray-800 rounded w-1/4"></div>
-                                    <div className="h-1 bg-gray-400 rounded w-1/3"></div>
-                                    <div className="h-1 bg-gray-400 rounded w-1/2"></div>
-                                  </div>
-                                </div>
-                                <div className="text-center">
-                                  <div className="font-medium">Compact</div>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>Font</CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Font Family</label>
-                              <Select value="times">
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="times">Times New Roman</SelectItem>
-                                  <SelectItem value="arial">Arial</SelectItem>
-                                  <SelectItem value="calibri">Calibri</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm font-medium mb-2 block">Name</label>
-                                <Select value={fontSize} onValueChange={setFontSize}>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="20">20</SelectItem>
-                                    <SelectItem value="22">22</SelectItem>
-                                    <SelectItem value="24">24</SelectItem>
-                                    <SelectItem value="25">25</SelectItem>
-                                    <SelectItem value="26">26</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-
-                              <div>
-                                <label className="text-sm font-medium mb-2 block">Section Headers</label>
-                                <Select value="11">
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="10">10</SelectItem>
-                                    <SelectItem value="11">11</SelectItem>
-                                    <SelectItem value="12">12</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      <div>
-                        <Card>
-                          <CardContent className="p-6">
-                            <h3 className="font-semibold text-lg mb-4">KODURI MOHAN</h3>
-                            <div className="space-y-3 text-sm">
-                              <div>6303410719 | kodurimohan5@gmail.com | linkedin.com/in/kodurimohan | github.com/kodurimohan</div>
-                              
-                              <div>
-                                <div className="font-semibold">Education</div>
-                                <div>IIT Madras</div>
-                                <div className="text-muted-foreground">Bachelor of Technology, Materials Science and Engineering | Jul 2019 - May 2023</div>
-                              </div>
-
-                              <div>
-                                <div className="font-semibold">Experience</div>
-                                <div>Mindgate Solutions | Java Developer | Jul 2024 - Present | Chennai, India</div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
+                  <TabsContent value="style" className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Resume Styling</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label htmlFor="template">Template</Label>
+                          <Select value={resumeTemplate} onValueChange={setResumeTemplate}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="standard">Standard</SelectItem>
+                              <SelectItem value="modern">Modern</SelectItem>
+                              <SelectItem value="creative">Creative</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="fontSize">Font Size: {fontSize}px</Label>
+                          <Select value={fontSize} onValueChange={setFontSize}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="10">10px</SelectItem>
+                              <SelectItem value="11">11px</SelectItem>
+                              <SelectItem value="12">12px</SelectItem>
+                              <SelectItem value="13">13px</SelectItem>
+                              <SelectItem value="14">14px</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </TabsContent>
                 </Tabs>
 
-                <div className="flex justify-between items-center pt-6 border-t">
-                  <Button variant="outline" onClick={() => handleStepChange(2)}>
+                <div className="flex justify-between">
+                  <Button variant="outline" onClick={() => setCurrentStep(2)}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
+                    Back to Alignment
                   </Button>
-                  
-                  <div className="flex space-x-4">
-                    <Button variant="outline">Download by PDF</Button>
-                    <Button variant="outline">Download by Word(.docx)</Button>
-                    <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                      Apply Now
+                  <div className="flex space-x-2">
+                    <Button variant="outline">
+                      Save Draft
+                    </Button>
+                    <Button onClick={downloadPDF} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Final Resume
                     </Button>
                   </div>
                 </div>
