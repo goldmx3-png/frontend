@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { JobCard } from "@/components/JobCard";
 import { JobFilters } from "@/components/JobFilters";
 import { AIAssistant } from "@/components/AIAssistant";
@@ -163,9 +164,6 @@ const Index = () => {
     return matchesSearch && matchesFilters;
   });
 
-  if (showResumeGenerator && selectedJobId) {
-    return <ResumeGenerator jobId={selectedJobId} onClose={handleCloseResumeGenerator} />;
-  }
 
   return (
     <div className="flex">
@@ -285,6 +283,18 @@ const Index = () => {
         </div>
 
       <AIAssistant />
+
+      {/* Resume Generator Side Panel */}
+      <Sheet open={showResumeGenerator} onOpenChange={setShowResumeGenerator}>
+        <SheetContent side="right" className="w-[90vw] max-w-none p-0 sm:max-w-none">
+          {selectedJobId && (
+            <ResumeGenerator 
+              jobId={selectedJobId} 
+              onClose={handleCloseResumeGenerator} 
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
