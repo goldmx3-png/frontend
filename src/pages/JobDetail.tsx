@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { PercentageCard } from "@/components/ui/percentage-card";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ResumeGenerator from "@/components/ResumeGenerator";
 import { 
   MapPin, 
@@ -266,13 +267,20 @@ export default function JobDetail() {
                       </div>
                       <span className="font-medium">Maximize your interview chances</span>
                     </div>
-                    <Button 
-                      className="bg-success hover:bg-success/90"
-                      onClick={() => setShowResumeGenerator(true)}
-                    >
-                      <span className="mr-2">⭐</span>
-                      Generate Custom Resume
-                    </Button>
+                    <Sheet open={showResumeGenerator} onOpenChange={setShowResumeGenerator}>
+                      <SheetTrigger asChild>
+                        <Button className="bg-success hover:bg-success/90">
+                          <span className="mr-2">⭐</span>
+                          Generate Custom Resume
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="right" className="w-[80vw] max-w-none p-0">
+                        <ResumeGenerator 
+                          jobId={jobId || "1"} 
+                          onClose={() => setShowResumeGenerator(false)} 
+                        />
+                      </SheetContent>
+                    </Sheet>
                   </div>
                 </CardContent>
               </Card>
@@ -705,13 +713,6 @@ export default function JobDetail() {
         </div>
       </div>
 
-      {/* Resume Generator Modal */}
-      {showResumeGenerator && (
-        <ResumeGenerator 
-          jobId={jobId || "1"} 
-          onClose={() => setShowResumeGenerator(false)} 
-        />
-      )}
     </div>
   );
 }
