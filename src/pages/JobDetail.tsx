@@ -274,7 +274,7 @@ export default function JobDetail() {
                           Generate Custom Resume
                         </Button>
                       </SheetTrigger>
-                      <SheetContent side="right" className="w-[80vw] max-w-none p-0">
+                      <SheetContent side="right" className="w-[90vw] max-w-none p-0 sm:max-w-none">
                         <ResumeGenerator 
                           jobId={jobId || "1"} 
                           onClose={() => setShowResumeGenerator(false)} 

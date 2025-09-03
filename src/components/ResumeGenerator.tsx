@@ -295,16 +295,16 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex h-full">
         {/* Resume Preview */}
-        <div className="flex-1 p-4">
-          <div className="bg-white rounded-lg border h-full overflow-auto">
+        <div className="flex-1 p-6 max-w-[60%]">
+          <div className="bg-white rounded-lg border h-full overflow-auto shadow-sm">
             {renderResumePreview()}
           </div>
         </div>
 
         {/* Right Sidebar */}
-        <div className="w-80 border-l border-border p-4 space-y-4">
+        <div className="w-96 min-w-96 border-l border-border bg-muted/30 p-6 space-y-6 overflow-auto">
           {/* Score Improvement */}
           <Card>
             <CardContent className="p-4">
@@ -414,7 +414,7 @@ export default function ResumeGenerator({ jobId, onClose }: ResumeGeneratorProps
       </div>
 
       {/* Footer */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border p-6 bg-background">
         <div className="flex justify-between items-center">
           <Button variant="outline" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
