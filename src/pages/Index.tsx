@@ -166,10 +166,10 @@ const Index = () => {
 
 
   return (
-    <div className="flex">
-      <div className="flex-1">
+    <div className="flex h-screen">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="border-b border-border bg-card p-4">
+        <div className="border-b border-border bg-card p-4 flex-shrink-0">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold">JOBS</h1>
@@ -203,11 +203,11 @@ const Index = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="recommended" className="mt-0">
+              <TabsContent value="recommended" className="mt-0 h-full">
                 {isLoading ? (
                   <JobListSkeleton showFilters={true} cardCount={5} />
                 ) : (
-                  <>
+                  <div className="h-full flex flex-col">
                     <JobFilters
                       activeFilters={activeFilters}
                       onFilterChange={setActiveFilters}
@@ -215,7 +215,7 @@ const Index = () => {
                       onSearchChange={setSearchQuery}
                     />
                     
-                    <div className="p-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
                       {filteredJobs.map((job) => (
                         <JobCard
                           key={job.id}
@@ -235,7 +235,7 @@ const Index = () => {
                         </div>
                       )}
                     </div>
-                  </>
+                  </div>
                 )}
               </TabsContent>
 
@@ -252,19 +252,21 @@ const Index = () => {
                 )}
               </TabsContent>
 
-              <TabsContent value="applied">
+              <TabsContent value="applied" className="h-full">
                 {isLoading ? (
                   <JobListSkeleton showFilters={false} cardCount={2} />
                 ) : (
-                  <AppliedJobs />
+                  <div className="h-full overflow-y-auto">
+                    <AppliedJobs />
+                  </div>
                 )}
               </TabsContent>
 
-              <TabsContent value="external">
+              <TabsContent value="external" className="h-full">
                 {isLoading ? (
                   <JobListSkeleton showFilters={false} cardCount={1} />
                 ) : (
-                  <div className="p-4 space-y-4">
+                  <div className="h-full overflow-y-auto p-4 space-y-4">
                     {mockJobs.slice(0, 1).map((job) => (
                       <JobCard
                         key={job.id}

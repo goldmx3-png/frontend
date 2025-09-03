@@ -21,8 +21,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="min-h-screen bg-background flex">
-          <Sidebar />
-          <div className="flex-1">
+          <div className="fixed left-0 top-0 bottom-0 z-10">
+            <Sidebar />
+          </div>
+          <div className="flex-1 ml-16">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/onboarding" element={<Onboarding />} />
