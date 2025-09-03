@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { PercentageCard } from "@/components/ui/percentage-card";
-import { Search, MapPin, Clock, DollarSign, Users, Building2, X } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Search, MapPin, Clock, DollarSign, Users, Building2, X, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface AppliedJob {
@@ -27,7 +28,7 @@ interface AppliedJob {
   status: "applied" | "interviewing" | "offer" | "rejected" | "archived";
 }
 
-const appliedJobs: AppliedJob[] = [
+let appliedJobs: AppliedJob[] = [
   {
     id: "1",
     title: "Software Engineer II",
@@ -69,6 +70,7 @@ const appliedJobs: AppliedJob[] = [
 export function AppliedJobs() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeStatus, setActiveStatus] = useState("applied");
+  const [jobs, setJobs] = useState<AppliedJob[]>(appliedJobs);
 
   const getMatchColor = (level: string) => {
     switch (level) {
@@ -83,23 +85,53 @@ export function AppliedJobs() {
     }
   };
 
+  const updateJobStatus = (jobId: string, newStatus: AppliedJob["status"]) => {
+    setJobs(prevJobs => 
+      prevJobs.map(job => 
+        job.id === jobId ? { ...job, status: newStatus } : job
+      )
+    );
+  };
+
   const getStatusCounts = () => {
     return {
-      applied: appliedJobs.filter(job => job.status === "applied").length,
-      interviewing: appliedJobs.filter(job => job.status === "interviewing").length,
-      offer: appliedJobs.filter(job => job.status === "offer").length,
-      rejected: appliedJobs.filter(job => job.status === "rejected").length,
-      archived: appliedJobs.filter(job => job.status === "archived").length,
+      applied: jobs.filter(job => job.status === "applied").length,
+      interviewing: jobs.filter(job => job.status === "interviewing").length,
+      offer: jobs.filter(job => job.status === "offer").length,
+      rejected: jobs.filter(job => job.status === "rejected").length,
+      archived: jobs.filter(job => job.status === "archived").length,
     };
   };
 
   const statusCounts = getStatusCounts();
-  const filteredJobs = appliedJobs.filter(job => 
+  const filteredJobs = jobs.filter(job => 
     job.status === activeStatus &&
     (!searchQuery || 
      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
      job.company.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  const getStatusLabel = (status: AppliedJob["status"]) => {
+    switch (status) {
+      case "applied": return "Applied";
+      case "interviewing": return "Interviewing";
+      case "offer": return "Offer Received";
+      case "rejected": return "Rejected";
+      case "archived": return "Archived";
+      default: return "Applied";
+    }
+  };
+
+  const getStatusVariant = (status: AppliedJob["status"]) => {
+    switch (status) {
+      case "applied": return "default";
+      case "interviewing": return "secondary";
+      case "offer": return "default";
+      case "rejected": return "destructive";
+      case "archived": return "outline";
+      default: return "default";
+    }
+  };
 
   const AppliedJobCard = ({ job }: { job: AppliedJob }) => (
     <Card className="group hover-lift border border-border bg-card/50 backdrop-blur-sm mb-4">
@@ -159,13 +191,50 @@ export function AppliedJobs() {
                 <Button variant="outline" size="sm">
                   ASK ORION
                 </Button>
-                <Button 
-                  variant="default"
-                  size="sm"
-                  className="bg-primary text-primary-foreground"
-                >
-                  Applied
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant={getStatusVariant(job.status)}
+                      size="sm"
+                      className="gap-1"
+                    >
+                      {getStatusLabel(job.status)}
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-background border border-border">
+                    <DropdownMenuItem 
+                      onClick={() => updateJobStatus(job.id, "applied")}
+                      className="cursor-pointer"
+                    >
+                      Applied
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => updateJobStatus(job.id, "interviewing")}
+                      className="cursor-pointer"
+                    >
+                      Interviewing
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => updateJobStatus(job.id, "offer")}
+                      className="cursor-pointer"
+                    >
+                      Offer Received
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => updateJobStatus(job.id, "rejected")}
+                      className="cursor-pointer"
+                    >
+                      Rejected
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => updateJobStatus(job.id, "archived")}
+                      className="cursor-pointer"
+                    >
+                      Archived
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
