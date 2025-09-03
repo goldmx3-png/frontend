@@ -70,14 +70,6 @@ export function Sidebar() {
         <Button variant="ghost" size="sm" className="w-12 h-12 p-0 text-muted-foreground">
           <HelpCircle className="w-5 h-5" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="w-12 h-12 p-0 text-muted-foreground"
-          onClick={() => setIsSettingsOpen(true)}
-        >
-          <Settings className="w-5 h-5" />
-        </Button>
       </div>
       
       <SettingsModal 
