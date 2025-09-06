@@ -10,6 +10,7 @@ import { AppliedJobs } from "@/components/AppliedJobs";
 import { JobListSkeleton } from "@/components/skeletons/JobListSkeleton";
 import ResumeGenerator from "@/components/ResumeGenerator";
 import { useToast } from "@/hooks/use-toast";
+import { useJobs, useHealthCheck } from "@/hooks/useApi";
 
 const mockJobs = [
   {
@@ -108,19 +109,23 @@ const Index = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [likedJobs, setLikedJobs] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showResumeGenerator, setShowResumeGenerator] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Simulate loading data
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // 2 second loading simulation
+  // API calls
+  const { data: healthStatus } = useHealthCheck();
+  const { 
+    data: jobsData, 
+    isLoading: jobsLoading, 
+    error: jobsError 
+  } = useJobs({
+    search: searchQuery,
+    limit: 20
+  });
 
-    return () => clearTimeout(timer);
-  }, []);
+  const isLoading = jobsLoading;
+  const jobs = jobsData?.jobs || mockJobs; // Fallback to mock data if API fails
 
   const handleLike = (jobId: string) => {
     setLikedJobs(prev => 
@@ -147,7 +152,7 @@ const Index = () => {
     setSelectedJobId(null);
   };
 
-  const filteredJobs = mockJobs.filter(job => {
+  const filteredJobs = jobs.filter(job => {
     const matchesSearch = !searchQuery || 
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.company.toLowerCase().includes(searchQuery.toLowerCase());
@@ -177,6 +182,20 @@ const Index = () => {
                   <span className="mr-2">⚡</span>
                   Get Hired Faster with Turbo
                 </Button>
+                {/* Backend Connection Status */}
+                <div className="flex items-center gap-2 text-sm">
+                  {healthStatus ? (
+                    <>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-green-600">Backend Connected</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-yellow-600">Using Mock Data</span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -267,7 +286,7 @@ const Index = () => {
                   <JobListSkeleton showFilters={false} cardCount={1} />
                 ) : (
                   <div className="h-full overflow-y-auto p-4 space-y-4">
-                    {mockJobs.slice(0, 1).map((job) => (
+                    {jobs.slice(0, 1).map((job) => (
                       <JobCard
                         key={job.id}
                         job={job}
